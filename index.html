@@ -1,8 +1,3 @@
-Men vèsyon konplè kòd la kote m mete opsyon **Cash Out Ayiti / Transfè** yo (ki gen ladan l **Remitly**, **Zelle Lòt Moun**, **Cash App**, ak **PayPal**) pwòp nèt, ansanm ak tout dènye mizajou pou memwa Supabase la (*LocalStorage*).
-
-Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye `index.html` ou an sou GitHub:
-
-```html
 <!DOCTYPE html>
 <html lang="ht">
 <head>
@@ -79,44 +74,65 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
     </div>
 
     <!-- Fòm Antre Tranzaksyon -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-      <h2 class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
+      <h2 class="text-base font-bold text-gray-800 flex items-center gap-2">
         <i class="fa-solid fa-plus-circle text-blue-600"></i> Anrejistre yon Nouvo Tranzaksyon
       </h2>
-      <form id="txForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+      <!-- Bouton Kategori yo (Fòm Bouton Orijinal) -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-2">KALITE TRANZAKSYON</label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button type="button" id="btn-cash_in" onclick="selectType('cash_in')" class="p-3 border rounded-xl text-left transition flex flex-col gap-1 border-blue-500 bg-blue-50 text-blue-700 font-bold shadow-sm">
+            <i class="fa-solid fa-arrow-down-left text-sm"></i>
+            <span class="text-xs">Cash In (Zelle/App)</span>
+          </button>
+          <button type="button" id="btn-cash_out_haiti" onclick="selectType('cash_out_haiti')" class="p-3 border rounded-xl text-left transition flex flex-col gap-1 border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
+            <i class="fa-solid fa-arrow-up-right-from-square text-sm text-red-500"></i>
+            <span class="text-xs">Cash Out Ayiti / Transfè</span>
+          </button>
+          <button type="button" id="btn-command_cash" onclick="selectType('command_cash')" class="p-3 border rounded-xl text-left transition flex flex-col gap-1 border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
+            <i class="fa-solid fa-cart-shopping text-sm text-blue-500"></i>
+            <span class="text-xs"> Kòmand Cash</span>
+          </button>
+          <button type="button" id="btn-expense" onclick="selectType('expense')" class="p-3 border rounded-xl text-left transition flex flex-col gap-1 border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
+            <i class="fa-solid fa-receipt text-sm text-amber-500"></i>
+            <span class="text-xs">Depans Biznis</span>
+          </button>
+        </div>
+      </div>
+
+      <form id="txForm" onsubmit="handleFormSubmit(event)" class="space-y-4 pt-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Kategori Tranzaksyon</label>
-            <select id="txType" onchange="toggleFormFields()" class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="cash_in">Cash In (Zelle/App)</option>
-              <option value="cash_out_haiti">Cash Out Ayiti / Transfè</option>
-              <option value="expense">Depans Biznis (Expense)</option>
-            </select>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Non Kliyan / Nòt</label>
+            <input type="text" id="txClient" placeholder="eg. Jean Baptiste" required class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Kliyan / Entite</label>
-            <input type="text" id="txClient" placeholder="Eg: Jean Baptiste" required class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Dat</label>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Dat Tranzaksyon</label>
             <input type="date" id="txDate" required class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
         </div>
 
-        <!-- Seksyon Siplemantè pou Cash Out Ayiti & Metòd yo -->
-        <div id="haitiOutGroup" class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
-          <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Metòd Cash Out</label>
-            <select id="txMethod" class="w-full p-2.5 text-xs border bg-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="Remitly">Remitly</option>
-              <option value="Zelle Lòt Moun">Zelle Lòt Moun</option>
-              <option value="Cash App">Cash App</option>
-              <option value="PayPal">PayPal</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Lajan Cash Moun Jwenn Ayiti ($)</label>
-            <input type="number" step="0.01" id="txHaitiOut" placeholder="200.00" oninput="calculatePreview()" class="w-full p-2.5 text-xs border bg-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+        <!-- Seksyon Siplemantè pou Cash Out Ayiti (Remitly, Zelle, Cash App, PayPal) -->
+        <div id="haitiOutGroup" class="hidden bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-3">
+          <p class="text-xs font-bold text-slate-700 flex items-center gap-1">
+            <i class="fa-solid fa-globe text-blue-600"></i> Detay Pass-Through / Metòd Livrezon
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Metòd Livrezon</label>
+              <select id="txMethod" class="w-full p-2.5 text-xs border bg-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="Remitly">Remitly</option>
+                <option value="Zelle Lòt Moun">Zelle Lòt Moun</option>
+                <option value="Cash App">Cash App</option>
+                <option value="PayPal">PayPal</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1">Lajan Cash Moun Jwenn Ayiti ($)</label>
+              <input type="number" step="0.01" id="txHaitiOut" placeholder="200.00" oninput="calculatePreview()" class="w-full p-2.5 text-xs border bg-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
           </div>
         </div>
 
@@ -126,7 +142,7 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
             <input type="number" step="0.01" id="txAmount" placeholder="220.00" oninput="calculatePreview()" required class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Frè Sèvis / Tranzaksyon ($)</label>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Frè Sèvis pou Transfè / Cash la ($)</label>
             <input type="number" step="0.01" id="txFee" placeholder="2.45" oninput="calculatePreview()" class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
         </div>
@@ -143,8 +159,8 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
           </div>
         </div>
 
-        <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md transition">
-          Anrejistre Tranzaksyon nan Liv la
+        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md transition">
+          Anrejistre nan Liv la
         </button>
       </form>
     </div>
@@ -170,7 +186,7 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
           </thead>
           <tbody id="txTableBody" class="divide-y text-xs">
             <tr>
-              <td colspan="7" class="p-4 text-center text-gray-400">Poko gen tranzaksyon ki anrejistre...</td>
+              <td colspan="7" class="p-4 text-center text-gray-400">Poko gen tranzaksyon...</td>
             </tr>
           </tbody>
         </table>
@@ -182,6 +198,7 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
   <script>
     let supabaseClient = null;
     let transactions = [];
+    let currentType = 'cash_in';
 
     document.getElementById('txDate').valueAsDate = new Date();
 
@@ -236,10 +253,18 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
       closeConfigModal();
     }
 
-    function toggleFormFields() {
-      const type = document.getElementById('txType').value;
-      const haitiGroup = document.getElementById('haitiOutGroup');
+    function selectType(type) {
+      currentType = type;
+      ['cash_in', 'cash_out_haiti', 'command_cash', 'expense'].forEach(t => {
+        const btn = document.getElementById(`btn-${t}`);
+        if (t === type) {
+          btn.className = 'p-3 border rounded-xl text-left transition flex flex-col gap-1 border-blue-500 bg-blue-50 text-blue-700 font-bold shadow-sm';
+        } else {
+          btn.className = 'p-3 border rounded-xl text-left transition flex flex-col gap-1 border-gray-200 bg-white text-gray-700 hover:bg-gray-50';
+        }
+      });
 
+      const haitiGroup = document.getElementById('haitiOutGroup');
       if (type === 'cash_out_haiti') {
         haitiGroup.classList.remove('hidden');
       } else {
@@ -249,16 +274,14 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
     }
 
     function calculatePreview() {
-      const type = document.getElementById('txType').value;
       const amount = parseFloat(document.getElementById('txAmount').value) || 0;
       const haitiOut = parseFloat(document.getElementById('txHaitiOut').value) || 0;
       const fee = parseFloat(document.getElementById('txFee').value) || 0;
 
       let netProfit = 0;
-
-      if (type === 'cash_out_haiti') {
+      if (currentType === 'cash_out_haiti') {
         netProfit = amount - haitiOut - fee;
-      } else if (type === 'expense') {
+      } else if (currentType === 'expense') {
         netProfit = -amount;
       } else {
         netProfit = amount - fee;
@@ -273,18 +296,17 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
     async function handleFormSubmit(e) {
       e.preventDefault();
 
-      const type = document.getElementById('txType').value;
       const client = document.getElementById('txClient').value;
       const date = document.getElementById('txDate').value;
       const amount = parseFloat(document.getElementById('txAmount').value) || 0;
       const haitiOut = parseFloat(document.getElementById('txHaitiOut').value) || 0;
       const fee = parseFloat(document.getElementById('txFee').value) || 0;
-      const method = type === 'cash_out_haiti' ? document.getElementById('txMethod').value : 'Standard';
+      const method = currentType === 'cash_out_haiti' ? document.getElementById('txMethod').value : 'Standard';
 
       let netProfit = 0;
-      if (type === 'cash_out_haiti') {
+      if (currentType === 'cash_out_haiti') {
         netProfit = amount - haitiOut - fee;
-      } else if (type === 'expense') {
+      } else if (currentType === 'expense') {
         netProfit = -amount;
       } else {
         netProfit = amount - fee;
@@ -293,12 +315,12 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
       const taxReserve = netProfit > 0 ? netProfit * 0.30 : 0;
 
       const payload = {
-        type,
+        type: currentType,
         method,
         client,
         date,
-        cashin: type === 'cash_in' ? amount : 0,
-        cashouthaiti: type === 'cash_out_haiti' ? haitiOut : 0,
+        cashin: currentType === 'cash_in' || currentType === 'command_cash' ? amount : 0,
+        cashouthaiti: currentType === 'cash_out_haiti' ? haitiOut : 0,
         fee,
         netprofit: netProfit,
         taxreserve: taxReserve
@@ -311,7 +333,7 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
         } else {
           document.getElementById('txForm').reset();
           document.getElementById('txDate').valueAsDate = new Date();
-          toggleFormFields();
+          selectType('cash_in');
           calculatePreview();
         }
       } else {
@@ -359,15 +381,18 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
         totalNet += net;
         totalTax += tax;
 
-        const displayType = tx.method && tx.method !== 'Standard' ? `${tx.type.replace(/_/g, ' ')} (${tx.method})` : tx.type.replace(/_/g, ' ');
+        let displayName = tx.type ? tx.type.replace(/_/g, ' ') : '';
+        if (tx.method && tx.method !== 'Standard') {
+          displayName += ` (${tx.method})`;
+        }
 
         const row = document.createElement('tr');
         row.className = 'border-b hover:bg-gray-50';
         row.innerHTML = `
           <td class="p-3 font-medium">${tx.date}</td>
           <td class="p-3">${tx.client}</td>
-          <td class="p-3 font-semibold uppercase text-[10px]">${displayType}</td>
-          <td class="p-3">$${(inAmt || outAmt || 0).toFixed(2)}</td>
+          <td class="p-3 font-semibold uppercase text-[10px]">${displayName}</td>
+          <td class="p-3">$${(inAmt || outAmt || amountHelper(tx)).toFixed(2)}</td>
           <td class="p-3 font-bold ${net >= 0 ? 'text-green-600' : 'text-red-600'}">$${net.toFixed(2)}</td>
           <td class="p-3 text-amber-600 font-semibold">$${tax.toFixed(2)}</td>
           <td class="p-3 text-right">
@@ -385,6 +410,10 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
       document.getElementById('statTaxReserve').innerText = `$${totalTax.toFixed(2)}`;
     }
 
+    function amountHelper(tx) {
+      return parseFloat(tx.netprofit) < 0 ? Math.abs(parseFloat(tx.netprofit)) : 0;
+    }
+
     async function deleteTx(id) {
       if (!confirm('Ou sèten ou vle efase tranzaksyon sa a?')) return;
       if (supabaseClient) {
@@ -396,5 +425,3 @@ Klike sou bouton kopye ki anba a pou w pran tout kòd sa a epi mete l nan fichye
   </script>
 </body>
 </html>
-
-```
