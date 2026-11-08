@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ht">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HDSTECH LLC - Kontablite & Taks</title>
+  <title>HDSTECH LLC-Kontablite & taks</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js for financial visual charts -->
@@ -19,12 +18,22 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
           colors: {
             brand: {
-              50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 900: '#14532d'
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              900: '#14532d',
             },
-            accent: { 500: '#0284c7', 600: '#0369a1' }
+            accent: {
+              500: '#0284c7',
+              600: '#0369a1',
+            }
           }
         }
       }
@@ -32,15 +41,26 @@
   </script>
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-  <!-- Header -->
+  <!-- Header / Navigation Bar -->
   <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
@@ -48,8 +68,8 @@
           <i class="fa-solid fa-wallet text-xl"></i>
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight">HDSTECH LLC</h1>
-          <p class="text-xs text-slate-400">Jesyon Taks IRS &amp; Kontablite Milti-Itilizatè</p>
+          <h1 class="font-bold text-lg leading-tight">Jesyon Taks &amp; Kontablite HDSTECH</h1>
+          <p class="text-xs text-slate-400">Multi-User Supabase Cloud Sync (Florida / Ayiti)</p>
         </div>
       </div>
       <div class="flex items-center space-x-2">
@@ -69,19 +89,19 @@
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Main Body Container -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- Supabase Status Banner -->
+    <!-- Supabase Live Status Bar -->
     <div id="sync-banner" class="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-center justify-between text-xs text-amber-800">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm"></i>
-        <span>Done yo anrejistre nan memwa aparèy la. Klike sou <b>"Konfigure Supabase"</b> pou senyen an tan reyèl.</span>
+        <span>Kounye a done yo anrejistre sèlman sou aparèy sa a. Klike sou <b>"Konfigure Supabase"</b> anlè a pou w ka senkronize l an tan reyèl ak lòt moun.</span>
       </div>
       <button onclick="openSupabaseModal()" class="font-bold underline hover:text-amber-900">Konekte Baz Done</button>
     </div>
 
-    <!-- KPI Cards Grid -->
+    <!-- Top KPI Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
         <div class="flex justify-between items-start">
@@ -89,9 +109,13 @@
             <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Benefis Nèt (Net Profit)</p>
             <h3 id="stat-net-profit" class="text-2xl font-bold text-brand-700 mt-1">$0.00</h3>
           </div>
-          <div class="bg-brand-50 p-3 rounded-xl text-brand-600"><i class="fa-solid fa-arrow-trend-up text-xl"></i></div>
+          <div class="bg-brand-50 p-3 rounded-xl text-brand-600">
+            <i class="fa-solid fa-arrow-trend-up text-xl"></i>
+          </div>
         </div>
-        <p class="text-xs text-slate-500 mt-3"><span class="text-emerald-600 font-medium" id="stat-transfers-count">0 transfè</span> efèktiye</p>
+        <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+          <span class="text-emerald-600 font-medium" id="stat-transfers-count">0 transfè</span> efèktiye
+        </p>
       </div>
 
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
@@ -100,9 +124,13 @@
             <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Rezèv Taks IRS (30%)</p>
             <h3 id="stat-tax-reserve" class="text-2xl font-bold text-amber-600 mt-1">$0.00</h3>
           </div>
-          <div class="bg-amber-50 p-3 rounded-xl text-amber-600"><i class="fa-solid fa-piggy-bank text-xl"></i></div>
+          <div class="bg-amber-50 p-3 rounded-xl text-amber-600">
+            <i class="fa-solid fa-piggy-bank text-xl"></i>
+          </div>
         </div>
-        <p class="text-xs text-slate-500 mt-3"><i class="fa-solid fa-shield-halved text-amber-500"></i> Sèlman sou pwofi nèt la</p>
+        <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+          <i class="fa-solid fa-shield-halved text-amber-500"></i> Sèlman sou pwofi nèt la
+        </p>
       </div>
 
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
@@ -111,9 +139,13 @@
             <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Cash Out Ayiti (Pass-Through)</p>
             <h3 id="stat-passthrough" class="text-2xl font-bold text-accent-600 mt-1">$0.00</h3>
           </div>
-          <div class="bg-sky-50 p-3 rounded-xl text-accent-600"><i class="fa-solid fa-right-left text-xl"></i></div>
+          <div class="bg-sky-50 p-3 rounded-xl text-accent-600">
+            <i class="fa-solid fa-right-left text-xl"></i>
+          </div>
         </div>
-        <p class="text-xs text-slate-500 mt-3"><span>0% Taks (Lajan Kliyan An)</span></p>
+        <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+          <span>0% Taks (Lajan Kliyan An)</span>
+        </p>
       </div>
 
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
@@ -122,59 +154,22 @@
             <p class="text-xs font-semibold uppercase tracking-wider text-rose-500">Frè &amp; Depans Biznis</p>
             <h3 id="stat-expenses" class="text-2xl font-bold text-rose-600 mt-1">$0.00</h3>
           </div>
-          <div class="bg-rose-50 p-3 rounded-xl text-rose-600"><i class="fa-solid fa-receipt text-xl"></i></div>
+          <div class="bg-rose-50 p-3 rounded-xl text-rose-600">
+            <i class="fa-solid fa-receipt text-xl"></i>
+          </div>
         </div>
-        <p class="text-xs text-slate-500 mt-3"><i class="fa-solid fa-circle-minus text-rose-500"></i> Depans lejitim yo</p>
+        <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+          <i class="fa-solid fa-circle-minus text-rose-500"></i> Frè Ayiti + Depans
+        </p>
       </div>
     </div>
 
-    <!-- Quick Calculator & Chart -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h2 class="font-bold text-slate-800 flex items-center gap-2 text-base">
-              <i class="fa-solid fa-calculator text-brand-600"></i> Kalkilatris Rapid ($220)
-            </h2>
-            <span class="text-xs bg-brand-50 text-brand-700 px-2 py-1 rounded-full font-semibold">Net $17.55</span>
-          </div>
-          <div class="space-y-3 mt-4 text-sm">
-            <div>
-              <label class="text-xs font-medium text-slate-500 block mb-1">Cash In Resevwa ($)</label>
-              <input type="number" id="calc-zelle-in" value="220" oninput="runQuickCalc()" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            </div>
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 mt-2 text-xs">
-              <div class="flex justify-between"><span class="text-slate-500">Cash Out Ayiti:</span><span id="calc-haiti-out" class="font-semibold text-sky-600">$200.00</span></div>
-              <div class="flex justify-between"><span class="text-slate-500">Frè Ayiti:</span><span id="calc-fee" class="font-semibold text-rose-600">$2.45</span></div>
-              <div class="flex justify-between pt-1 border-t border-slate-200"><span class="text-slate-600 font-medium">Benefis Nèt Ou:</span><span id="calc-net" class="font-bold text-brand-600">$17.55</span></div>
-              <div class="flex justify-between pt-1 border-t border-slate-200"><span class="text-amber-700 font-medium">Rezèv Taks (30%):</span><span id="calc-tax" class="font-bold text-amber-600">$5.27</span></div>
-            </div>
-          </div>
-        </div>
-        <button onclick="fillFormFromCalc()" class="mt-4 w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-plus-circle text-brand-500"></i> Anrejistre Tranzaksyon Sa A
-        </button>
-      </div>
-
-      <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-          <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
-            <i class="fa-solid fa-chart-line text-accent-600"></i> Aperçu Finansye HDSTECH
-          </h2>
-          <span class="text-xs text-slate-400">Benefis Nèt vs Taks IRS</span>
-        </div>
-        <div class="h-56 relative mt-4">
-          <canvas id="financeChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Transaction Table -->
+    <!-- Main Transaction Table Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
       <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 class="font-bold text-slate-800 text-lg">Liv Kontablite &amp; Istorik Tranzaksyon</h2>
-          <p class="text-xs text-slate-500">Zelle, Cash App, Remitly, PayPal, Cash Out ak Depans</p>
+          <p class="text-xs text-slate-500">Swiv Zelle, Cash App, Cash Out Ayiti ak Depans yo pou dosye IRS</p>
         </div>
         <div class="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium text-slate-600">
           <button onclick="filterTable('all')" id="btn-filter-all" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-slate-900 font-semibold transition">Tout</button>
@@ -205,42 +200,56 @@
       </div>
 
       <div id="empty-state" class="hidden text-center py-12 px-4">
-        <div class="bg-slate-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-slate-400 mb-3"><i class="fa-solid fa-folder-open text-xl"></i></div>
+        <div class="bg-slate-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-slate-400 mb-3">
+          <i class="fa-solid fa-folder-open text-xl"></i>
+        </div>
         <h3 class="font-semibold text-slate-700">Poko gen okenn tranzaksyon anrejistre</h3>
       </div>
     </div>
+
   </main>
 
-  <!-- Supabase Config Modal -->
+  <!-- Modal Form: Supabase Database Configuration -->
   <div id="supabase-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
       <div class="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
-        <div class="flex items-center space-x-2"><i class="fa-solid fa-cloud text-emerald-400"></i><h3 class="font-bold text-base">Konfigirasyon Supabase Cloud</h3></div>
-        <button onclick="closeSupabaseModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-cloud text-emerald-400"></i>
+          <h3 class="font-bold text-base">Konfigirasyon Supabase Cloud</h3>
+        </div>
+        <button onclick="closeSupabaseModal()" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
       </div>
-      <div class="p-5 space-y-4 text-xs">
+
+      <div class="p-5 space-y-4">
         <div>
-          <label class="block font-semibold text-slate-600 mb-1 uppercase">Supabase Project URL</label>
-          <input type="text" id="sp-url" placeholder="https://xyz.supabase.co" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono">
+          <label class="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wider">Supabase Project URL</label>
+          <input type="text" id="sp-url" placeholder="https://xyzcompany.supabase.co" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none">
         </div>
         <div>
-          <label class="block font-semibold text-slate-600 mb-1 uppercase">Supabase Anon Key</label>
-          <input type="password" id="sp-key" placeholder="eyJhbGciOiJIUzI1Ni..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 font-mono">
+          <label class="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wider">Supabase Anon Key</label>
+          <input type="password" id="sp-key" placeholder="eyJhbGciOiJIUzI1Ni..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none">
         </div>
         <div class="pt-2 flex items-center justify-end space-x-2 border-t border-slate-100">
-          <button type="button" onclick="disconnectSupabase()" class="px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg font-medium">Koupe Koneksyon</button>
-          <button type="button" onclick="saveSupabaseConfig()" class="px-5 py-2 bg-emerald-600 text-white hover:bg-emerald-500 rounded-lg font-semibold shadow-sm">Sove ak Konekte</button>
+          <button type="button" onclick="disconnectSupabase()" class="px-3 py-2 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 transition">Koupe Koneksyon</button>
+          <button type="button" onclick="saveSupabaseConfig()" class="px-5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-sm">Sove ak Konekte</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Transaction Modal Form -->
+  <!-- Modal Form: Add/Edit Transaction -->
   <div id="tx-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all">
       <div class="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
-        <div class="flex items-center space-x-2"><i class="fa-solid fa-file-invoice text-brand-500"></i><h3 class="font-bold text-base">Nouvo Tranzaksyon Biznis</h3></div>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-file-invoice text-brand-500"></i>
+          <h3 class="font-bold text-base">Nouvo Tranzaksyon Biznis</h3>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
       </div>
 
       <form id="tx-form" onsubmit="handleFormSubmit(event)" class="p-5 space-y-4">
@@ -248,16 +257,20 @@
           <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">KALITE TRANZAKSYON</label>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button type="button" onclick="setTxType('cash_in')" id="type-btn-in" class="py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition bg-brand-50 border-brand-500 text-brand-700">
-              <i class="fa-solid fa-arrow-down-left-and-arrow-up-right text-base"></i> Cash In
+              <i class="fa-solid fa-arrow-down-left-and-arrow-up-right text-base"></i>
+              Cash In (Zelle/App)
             </button>
             <button type="button" onclick="setTxType('cash_out')" id="type-btn-out" class="py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition border-slate-200 text-slate-600 hover:bg-slate-50">
-              <i class="fa-solid fa-paper-plane text-base"></i> Cash Out Ayiti
+              <i class="fa-solid fa-paper-plane text-base"></i>
+              Cash Out Ayiti
             </button>
             <button type="button" onclick="setTxType('cash_order')" id="type-btn-cash" class="py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition border-slate-200 text-slate-600 hover:bg-slate-50">
-              <i class="fa-solid fa-cart-shopping text-base"></i> Kòmand Cash
+              <i class="fa-solid fa-cart-shopping text-base"></i>
+              Kòmand Cash
             </button>
             <button type="button" onclick="setTxType('expense')" id="type-btn-expense" class="py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition border-slate-200 text-slate-600 hover:bg-slate-50">
-              <i class="fa-solid fa-receipt text-base"></i> Depans Biznis
+              <i class="fa-solid fa-receipt text-base"></i>
+              Depans Biznis
             </button>
           </div>
         </div>
@@ -275,7 +288,7 @@
           </div>
         </div>
 
-        <!-- 1. Cash In -->
+        <!-- 1. CASH IN -->
         <div id="fields-in" class="space-y-3 bg-brand-50/50 p-4 rounded-xl border border-brand-200">
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -292,7 +305,7 @@
           </div>
         </div>
 
-        <!-- 2. Cash Out Ayiti (Remitly, Zelle Lòt Moun, Cash App, PayPal) -->
+        <!-- 2. CASH OUT AYITI (Remitly, Zelle Lòt Moun, Cash App, PayPal) -->
         <div id="fields-out" class="space-y-3 bg-sky-50 p-4 rounded-xl border border-sky-200 hidden">
           <p class="text-xs text-sky-800 font-semibold flex items-center gap-1">
             <i class="fa-solid fa-shield-halved"></i> Pass-Through Ayiti (0% Taks)
@@ -318,7 +331,7 @@
           </div>
         </div>
 
-        <!-- 3. Kòmand Cash -->
+        <!-- 3. CASH ORDER -->
         <div id="fields-cash" class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200 hidden">
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">Lajan Cash Kliyan an ba ou ($)</label>
@@ -330,7 +343,7 @@
           </div>
         </div>
 
-        <!-- 4. Depans Biznis -->
+        <!-- 4. EXPENSE -->
         <div id="fields-expense" class="space-y-3 bg-rose-50 p-4 rounded-xl border border-rose-200 hidden">
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">Montan Depans ($)</label>
@@ -361,21 +374,29 @@
     </div>
   </div>
 
+  <!-- ImageViewer Modal pou gade imaj la san pwoblèm -->
+  <div id="image-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="relative max-w-3xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl p-4 flex flex-col items-center">
+      <button onclick="closeImageModal()" class="absolute top-3 right-3 bg-slate-900 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold hover:bg-slate-700 transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h3 class="font-bold text-slate-800 text-sm mb-3">Prèv / Resi Tranzaksyon an</h3>
+      <img id="modal-img-preview" src="" alt="Resi" class="max-h-[75vh] w-auto object-contain rounded-lg border border-slate-200">
+    </div>
+  </div>
+
   <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
     <p>© 2026 HDSTECH LLC / Ayiti. Optimisé pou Single-Member LLC &amp; Self-Employment IRS Rules.</p>
   </footer>
 
-  <!-- Application Logic JS -->
   <script>
     let transactions = [];
     let currentFilter = 'all';
-    let financeChart = null;
     let supabaseClient = null;
 
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
       initSupabaseFromStorage();
-      initChart();
     });
 
     function initSupabaseFromStorage() {
@@ -392,7 +413,7 @@
           document.getElementById('sync-banner').classList.add('hidden');
           fetchTransactionsFromSupabase();
           listenToRealtimeChanges();
-        } catch(e) { console.error(e); loadLocalStorage(); }
+        } catch(e) { console.error(e); }
       } else {
         loadLocalStorage();
       }
@@ -443,37 +464,11 @@
     function loadLocalStorage() {
       const saved = localStorage.getItem('hdstech_biz_v3');
       if (saved) { try { transactions = JSON.parse(saved); } catch(e){} }
-      else {
-        transactions = [{
-          id: '101', type: 'cash_in', method: 'Zelle', date: '2026-11-08', client: 'Jean Baptiste',
-          cashin: 220.00, cashouthaiti: 200.00, fee: 2.45, netprofit: 17.55, taxreserve: 5.27, receiptimage: null
-        }];
-      }
       updateDashboard();
     }
 
     function saveDataLocally() {
       localStorage.setItem('hdstech_biz_v3', JSON.stringify(transactions));
-    }
-
-    function runQuickCalc() {
-      const totalIn = parseFloat(document.getElementById('calc-zelle-in').value) || 0;
-      const ratio = totalIn > 0 ? (totalIn / 220) : 0;
-      const haitiOut = ratio * 200;
-      const fee = ratio * 2.45;
-      const netProfit = Math.max(0, ratio * 17.55);
-      const taxReserve = netProfit * 0.30;
-
-      document.getElementById('calc-haiti-out').textContent = '$' + haitiOut.toFixed(2);
-      document.getElementById('calc-fee').textContent = '$' + fee.toFixed(2);
-      document.getElementById('calc-net').textContent = '$' + netProfit.toFixed(2);
-      document.getElementById('calc-tax').textContent = '$' + taxReserve.toFixed(2);
-    }
-
-    function fillFormFromCalc() {
-      openModal();
-      setTxType('cash_in');
-      document.getElementById('in-amount').value = document.getElementById('calc-zelle-in').value;
     }
 
     function setTxType(type) {
@@ -499,6 +494,14 @@
 
     function openModal() { document.getElementById('tx-modal').classList.remove('hidden'); document.getElementById('tx-date').value = new Date().toISOString().split('T')[0]; }
     function closeModal() { document.getElementById('tx-modal').classList.add('hidden'); }
+
+    function showImageModal(url) {
+      document.getElementById('modal-img-preview').src = url;
+      document.getElementById('image-modal').classList.remove('hidden');
+    }
+    function closeImageModal() {
+      document.getElementById('image-modal').classList.add('hidden');
+    }
 
     async function handleFormSubmit(e) {
       e.preventDefault();
@@ -549,8 +552,29 @@
       if (fileInput.files && fileInput.files[0]) {
         const reader = new FileReader();
         reader.onload = async function(uploadEvent) {
-          receiptimage = uploadEvent.target.result;
-          await finalizeAndSave({ type, method, date, client, cashin, cashouthaiti, fee, netprofit, taxreserve, receiptimage });
+          // Konvèsi epi redwi gwosè imaj la pou l pa depase limit baz done a
+          const img = new Image();
+          img.src = uploadEvent.target.result;
+          img.onload = async function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            receiptimage = canvas.toDataURL('image/jpeg', 0.7);
+
+            await finalizeAndSave({ type, method, date, client, cashin, cashouthaiti, fee, netprofit, taxreserve, receiptimage });
+          };
         };
         reader.readAsDataURL(fileInput.files[0]);
       } else {
@@ -622,7 +646,6 @@
       document.getElementById('stat-transfers-count').textContent = transferCount + ' transfè';
 
       renderTable();
-      updateChart(totalNetProfit, totalTaxReserve);
     }
 
     function renderTable() {
@@ -641,11 +664,11 @@
         tr.className = "hover:bg-slate-50/80 transition";
         let typeBadge = '';
         if (t.type === 'cash_in') typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-50 text-brand-700">Cash In (${t.method})</span>`;
-        else if (t.type === 'cash_out') typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 text-sky-700">Cash Out (${t.method})</span>`;
+        else if (t.type === 'cash_out') typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 text-sky-700">Cash Out Ayiti (${t.method})</span>`;
         else if (t.type === 'cash_order') typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700">Kòmand Cash</span>`;
         else typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700">Depans Biznis</span>`;
 
-        let receiptHtml = t.receiptimage ? `<a href="${t.receiptimage}" target="_blank" class="text-accent-600 hover:underline"><i class="fa-solid fa-image"></i> Gade</a>` : `<span class="text-slate-300">-</span>`;
+        let receiptHtml = t.receiptimage ? `<button onclick="showImageModal('${t.receiptimage}')" class="text-accent-600 hover:underline font-medium"><i class="fa-solid fa-image"></i> Gade</button>` : `<span class="text-slate-300">-</span>`;
 
         tr.innerHTML = `
           <td class="py-3 px-4 font-medium"><div>${t.date}</div><div class="text-xs text-slate-500">${t.client || ''}</div></td>
@@ -660,33 +683,6 @@
         `;
         tbody.appendChild(tr);
       });
-    }
-
-    function initChart() {
-      const ctx = document.getElementById('financeChart').getContext('2d');
-      financeChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Novanm 2026'],
-          datasets: [
-            { label: 'Benefis Nèt ($)', data: [17.55], backgroundColor: '#16a34a', borderRadius: 8 },
-            { label: 'Rezèv Taks IRS ($)', data: [5.27], backgroundColor: '#f59e0b', borderRadius: 8 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom' } },
-          scales: { y: { beginAtZero: true } }
-        }
-      });
-    }
-
-    function updateChart(net, tax) {
-      if (!financeChart) return;
-      financeChart.data.datasets[0].data = [net];
-      financeChart.data.datasets[1].data = [tax];
-      financeChart.update();
     }
 
     function exportToCSV() {
