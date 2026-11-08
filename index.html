@@ -3,126 +3,430 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HDSTECH LLC - Kontablite & Taks</title>
+  <title>Jesyon Taks ak Kontablite HDSTECH LLC</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for financial visual charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              900: '#14532d',
+            },
+            accent: {
+              500: '#0284c7',
+              600: '#0369a1',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+  <!-- Header / Navigation Bar -->
+  <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <i class="fa-solid fa-calculator text-2xl text-blue-400"></i>
+        <div class="bg-brand-500 p-2 rounded-lg text-white">
+          <i class="fa-solid fa-wallet text-xl"></i>
+        </div>
         <div>
-          <h1 class="text-xl font-bold">HDSTECH LLC</h1>
-          <p class="text-xs text-gray-400">Jesyòn Tranzaksyon ak Taks IRS</p>
+          <h1 class="font-bold text-lg leading-tight">Jesyon Taks &amp; Kontablite HDSTECH</h1>
+          <p class="text-xs text-slate-400">Multi-User Supabase Cloud Sync (Florida / Ayiti)</p>
         </div>
       </div>
-      <div class="flex items-center gap-3">
-        <span id="syncStatus" class="text-xs bg-yellow-600 px-3 py-1 rounded-full font-medium flex items-center gap-1">
-          <i class="fa-solid fa-circle-notch fa-spin"></i> Pa Konekte
-        </span>
-        <button onclick="openConfigModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1 transition">
-          <i class="fa-solid fa-gear"></i> Konfigure Supabase
+      <div class="flex items-center space-x-2">
+        <button onclick="openSupabaseModal()" id="db-status-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-2">
+          <i class="fa-solid fa-cloud text-slate-400" id="db-status-icon"></i>
+          <span id="db-status-text" class="hidden sm:inline">Konfigure Supabase</span>
+        </button>
+        <button onclick="exportToCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-2">
+          <i class="fa-solid fa-file-csv text-brand-500"></i>
+          <span class="hidden sm:inline">CSV</span>
+        </button>
+        <button onclick="openModal()" class="bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs sm:text-sm px-3 py-2 rounded-lg transition shadow-sm flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i>
+          <span>Nouvo Tranzaksyon</span>
         </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+  <!-- Main Body Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- Konfigirasyon Supabase (Modal) -->
-    <div id="configModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
-        <h3 class="text-lg font-bold text-gray-900 border-b pb-2">Konfigurasyon Baz Done Supabase</h3>
-        <p class="text-xs text-gray-600">Espas sa a bezwen ranpli yon sèl fwa. L ap anrejistre otomatikman nan memwa aparèy la.</p>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Project URL</label>
-          <input type="text" id="cfgUrl" placeholder="https://rwgrkmviefsannkmxazy.supabase.co" class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Anon Public Key</label>
-          <input type="password" id="cfgKey" placeholder="sb_publishable_..." class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button onclick="closeConfigModal()" class="px-4 py-2 text-xs text-gray-600 font-semibold">Anule</button>
-          <button onclick="saveSupabaseConfig()" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold">Sere & Konekte</button>
-        </div>
+    <!-- Supabase Live Status Bar -->
+    <div id="sync-banner" class="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-center justify-between text-xs text-amber-800">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm"></i>
+        <span>Kounye a done yo anrejistre sèlman sou aparèy sa a. Klike sou <b>"Konfigure Supabase"</b> anlè a pou w ka senkronize l an tan reyèl ak lòt moun.</span>
       </div>
+      <button onclick="openSupabaseModal()" class="font-bold underline hover:text-amber-900">Konekte Baz Done</button>
     </div>
 
-    <!-- Tablo Dashboard Komin -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <p class="text-xs text-gray-500 font-medium">Total Cash In</p>
-        <h3 id="statCashIn" class="text-xl font-bold text-green-600">$0.00</h3>
+    <!-- Top KPI Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- Card 1: Gross Profit (Benefis Nèt) -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Benefis Nèt (Net Profit)</p>
+            <h3 id="stat-net-profit" class="text-2xl font-bold text-brand-700 mt-1">$0.00</h3>
+          </div>
+          <div class="bg-brand-50 p-3 rounded-xl text-brand-600">
+            <i class="fa-solid fa-arrow-trend-up text-xl"></i>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+          <span class="text-emerald-600 font-medium" id="stat-transfers-count">0 transfè</span> efèktiye
+        </p>
       </div>
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <p class="text-xs text-gray-500 font-medium">Total Cash Out</p>
-        <h3 id="statCashOut" class="text-xl font-bold text-red-600">$0.00</h3>
+
+      <!-- Card 2: Estimated IRS Tax (30% Reserve) -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Rezèv Taks IRS (30%)</p>
+            <h3 id="stat-tax-reserve" class="text-2xl font-bold text-amber-600 mt-1">$0.00</h3>
+          </div>
+          <div class="bg-amber-50 p-3 rounded-xl text-amber-600">
+            <i class="fa-solid fa-piggy-bank text-xl"></i>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+          <i class="fa-solid fa-shield-halved text-amber-500"></i> Sèlman sou pwofi nèt la
+        </p>
       </div>
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <p class="text-xs text-gray-500 font-medium">Pwofi Nèt (Net Profit)</p>
-        <h3 id="statNetProfit" class="text-xl font-bold text-blue-600">$0.00</h3>
+
+      <!-- Card 3: Pass-Through Volume (Non-Taxable) -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Cash Out Ayiti (Pass-Through)</p>
+            <h3 id="stat-passthrough" class="text-2xl font-bold text-accent-600 mt-1">$0.00</h3>
+          </div>
+          <div class="bg-sky-50 p-3 rounded-xl text-accent-600">
+            <i class="fa-solid fa-right-left text-xl"></i>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+          <span>0% Taks (Lajan Kliyan An)</span>
+        </p>
       </div>
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 bg-amber-50/50">
-        <p class="text-xs text-amber-700 font-medium">Rezèv Taks IRS (30%)</p>
-        <h3 id="statTaxReserve" class="text-xl font-bold text-amber-600">$0.00</h3>
+
+      <!-- Card 4: Business Expenses -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-rose-500">Frè &amp; Depans Biznis</p>
+            <h3 id="stat-expenses" class="text-2xl font-bold text-rose-600 mt-1">$0.00</h3>
+          </div>
+          <div class="bg-rose-50 p-3 rounded-xl text-rose-600">
+            <i class="fa-solid fa-receipt text-xl"></i>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-3 flex items-center gap-1">
+          <i class="fa-solid fa-circle-minus text-rose-500"></i> Frè Ayiti + Depans
+        </p>
       </div>
+
     </div>
 
-    <!-- Fòm Antre Tranzaksyon -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
-      <h2 class="text-base font-bold text-gray-800 flex items-center gap-2">
-        <i class="fa-solid fa-plus-circle text-blue-600"></i> Anrejistre yon Nouvo Tranzaksyon
-      </h2>
+    <!-- Interactive Calculator Quick Widget & Chart Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <!-- Bouton Kategori yo (Fòm Bouton Orijinal) -->
-      <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-2">KALITE TRANZAKSYON</label>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <button type="button" id="btn-cash_in" onclick="selectType('cash_in')" class="p-3 border rounded-xl text-left transition flex flex-col gap-1 border-blue-500 bg-blue-50 text-blue-700 font-bold shadow-sm">
-            <i class="fa-solid fa-arrow-down-left text-sm"></i>
-            <span class="text-xs">Cash In (Zelle/App)</span>
-          </button>
-          <button type="button" id="btn-cash_out_haiti" onclick="selectType('cash_out_haiti')" class="p-3 border rounded-xl text-left transition flex flex-col gap-1 border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
-            <i class="fa-solid fa-arrow-up-right-from-square text-sm text-red-500"></i>
-            <span class="text-xs">Cash Out Ayiti / Transfè</span>
-          </button>
-          <button type="button" id="btn-command_cash" onclick="selectType('command_cash')" class="p-3 border rounded-xl text-left transition flex flex-col gap-1 border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
-            <i class="fa-solid fa-cart-shopping text-sm text-blue-500"></i>
-            <span class="text-xs"> Kòmand Cash</span>
-          </button>
-          <button type="button" id="btn-expense" onclick="selectType('expense')" class="p-3 border rounded-xl text-left transition flex flex-col gap-1 border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
-            <i class="fa-solid fa-receipt text-sm text-amber-500"></i>
-            <span class="text-xs">Depans Biznis</span>
-          </button>
-        </div>
-      </div>
-
-      <form id="txForm" onsubmit="handleFormSubmit(event)" class="space-y-4 pt-2">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Non Kliyan / Nòt</label>
-            <input type="text" id="txClient" placeholder="eg. Jean Baptiste" required class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+      <!-- Quick Calculator ($220 total -> $200 Ayiti, $2.45 fee, $17.55 net) -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h2 class="font-bold text-slate-800 flex items-center gap-2 text-base">
+              <i class="fa-solid fa-calculator text-brand-600"></i>
+              Kalkilatris Rapid ($220)
+            </h2>
+            <span class="text-xs bg-brand-50 text-brand-700 px-2 py-1 rounded-full font-semibold">Net $17.55</span>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Dat Tranzaksyon</label>
-            <input type="date" id="txDate" required class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-        </div>
 
-        <!-- Seksyon Siplemantè pou Cash Out Ayiti (Remitly, Zelle, Cash App, PayPal) -->
-        <div id="haitiOutGroup" class="hidden bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-3">
-          <p class="text-xs font-bold text-slate-700 flex items-center gap-1">
-            <i class="fa-solid fa-globe text-blue-600"></i> Detay Pass-Through / Metòd Livrezon
-          </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-3 mt-4 text-sm">
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Metòd Livrezon</label>
-              <select id="txMethod" class="w-full p-2.5 text-xs border bg-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <label class="text-xs font-medium text-slate-500 block mb-1">Cash In Resevwa (Zelle / Cash App) ($)</label>
+              <input type="number" id="calc-zelle-in" value="220" oninput="runQuickCalc()" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+
+            <!-- Calculated Results breakdown -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2 mt-2">
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-500">Cash Out Ayiti (Pass-Through):</span>
+                <span id="calc-haiti-out" class="font-semibold text-sky-600">$200.00</span>
+              </div>
+              <div class="flex justify-between text-xs">
+                <span class="text-slate-500">Frè Peye Moun Ayiti:</span>
+                <span id="calc-fee" class="font-semibold text-rose-600">$2.45</span>
+              </div>
+              <div class="flex justify-between text-xs pt-1 border-t border-slate-200">
+                <span class="text-slate-600 font-medium">Benefis Nèt Ou (Net Profit):</span>
+                <span id="calc-net" class="font-bold text-brand-600">$17.55</span>
+              </div>
+              <div class="flex justify-between text-xs pt-1 border-t border-slate-200">
+                <span class="text-amber-700 font-medium">Rezèv Taks IRS (30% Net):</span>
+                <span id="calc-tax" class="font-bold text-amber-600">$5.27</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="fillFormFromCalc()" class="mt-4 w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs py-2.5 rounded-lg transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-plus-circle text-brand-500"></i>
+          <span>Anrejistre Tranzaksyon Sa A</span>
+        </button>
+      </div>
+
+      <!-- Financial Chart (Monthly Overview) -->
+      <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
+            <i class="fa-solid fa-chart-line text-accent-600"></i>
+            Aperçu Finansye HDSTECH (An Tan Reyèl)
+          </h2>
+          <span class="text-xs text-slate-400">Benefis Nèt vs Taks IRS</span>
+        </div>
+        <div class="h-56 relative mt-4">
+          <canvas id="financeChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Main Transaction Table Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+      
+      <!-- Table Header Controls -->
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-bold text-slate-800 text-lg">Liv Kontablite &amp; Istorik Tranzaksyon</h2>
+          <p class="text-xs text-slate-500">Swiv Zelle, Cash App, Cash Out Ayiti ak Depans yo pou dosye IRS</p>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium text-slate-600">
+          <button onclick="filterTable('all')" id="btn-filter-all" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-slate-900 font-semibold transition">Tout</button>
+          <button onclick="filterTable('cash_in')" id="btn-filter-in" class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Cash In</button>
+          <button onclick="filterTable('cash_out')" id="btn-filter-out" class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Cash Out Ayiti</button>
+          <button onclick="filterTable('cash_order')" id="btn-filter-cash" class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Kòmand Cash</button>
+          <button onclick="filterTable('expense')" id="btn-filter-expense" class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Depans</button>
+        </div>
+      </div>
+
+      <!-- Table Content -->
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200/80 text-slate-500 uppercase tracking-wider text-[11px]">
+              <th class="py-3 px-4 font-semibold">Dat / Kliyan</th>
+              <th class="py-3 px-4 font-semibold">Metòd / Kalite</th>
+              <th class="py-3 px-4 font-semibold">Cash In ($)</th>
+              <th class="py-3 px-4 font-semibold">Cash Out Ayiti ($)</th>
+              <th class="py-3 px-4 font-semibold">Frè Peye ($)</th>
+              <th class="py-3 px-4 font-semibold">Benefis Nèt ($)</th>
+              <th class="py-3 px-4 font-semibold">Taks IRS (30%)</th>
+              <th class="py-3 px-4 font-semibold text-center">Resi</th>
+              <th class="py-3 px-4 font-semibold text-right">Aksyon</th>
+            </tr>
+          </thead>
+          <tbody id="transaction-table-body" class="divide-y divide-slate-100 font-normal">
+            <!-- Dynamic rows populated via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State indicator if empty -->
+      <div id="empty-state" class="hidden text-center py-12 px-4">
+        <div class="bg-slate-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-slate-400 mb-3">
+          <i class="fa-solid fa-folder-open text-xl"></i>
+        </div>
+        <h3 class="font-semibold text-slate-700">Poko gen okenn tranzaksyon anrejistre</h3>
+        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Klike sou bouton "Nouvo Tranzaksyon" an pou w ka kòmanse anrejistre tranzaksyon w yo.</p>
+      </div>
+
+      <!-- Table Footer info -->
+      <div class="bg-slate-50 p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
+        <div>
+          Montre <span id="visible-count" class="font-semibold text-slate-700">0</span> tranzaksyon
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Cash In (Zelle/CashApp)
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-sky-500"></span> Cash Out Ayiti (Pass-Through)
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500"></span> Depans
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal Form: Supabase Database Configuration -->
+  <div id="supabase-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+      <div class="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-cloud text-emerald-400"></i>
+          <h3 class="font-bold text-base">Konfigirasyon Supabase Cloud</h3>
+        </div>
+        <button onclick="closeSupabaseModal()" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Antre <b>Project URL</b> ak <b>Anon Key</b> Supabase ou an pou tout moun ka travay sou menm done yo an tan reyèl:
+        </p>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wider">Supabase Project URL</label>
+          <input type="text" id="sp-url" placeholder="https://xyzcompany.supabase.co" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wider">Supabase Anon Key</label>
+          <input type="password" id="sp-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+
+        <div class="pt-2 flex items-center justify-end space-x-2 border-t border-slate-100">
+          <button type="button" onclick="disconnectSupabase()" class="px-3 py-2 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 transition">Koupe Koneksyon</button>
+          <button type="button" onclick="saveSupabaseConfig()" class="px-5 py-2 rounded-lg text-xs font-semibold bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-sm">Sove ak Konekte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Form: Add/Edit Transaction -->
+  <div id="tx-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all">
+      
+      <!-- Modal Header -->
+      <div class="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-file-invoice text-brand-500"></i>
+          <h3 class="font-bold text-base">Nouvo Tranzaksyon Biznis</h3>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Form Body -->
+      <form id="tx-form" onsubmit="handleFormSubmit(event)" class="p-5 space-y-4">
+        
+        <!-- Transaction Type Selection (4 Buttons) -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">KALITE TRANZAKSYON</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button type="button" onclick="setTxType('cash_in')" id="type-btn-in" class="py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition bg-brand-50 border-brand-500 text-brand-700">
+              <i class="fa-solid fa-arrow-down-left-and-arrow-up-right text-base"></i>
+              Cash In (Zelle/App)
+            </button>
+            <button type="button" onclick="setTxType('cash_out')" id="type-btn-out" class="py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition border-slate-200 text-slate-600 hover:bg-slate-50">
+              <i class="fa-solid fa-paper-plane text-base"></i>
+              Cash Out Ayiti
+            </button>
+            <button type="button" onclick="setTxType('cash_order')" id="type-btn-cash" class="py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition border-slate-200 text-slate-600 hover:bg-slate-50">
+              <i class="fa-solid fa-cart-shopping text-base"></i>
+              Kòmand Cash
+            </button>
+            <button type="button" onclick="setTxType('expense')" id="type-btn-expense" class="py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition border-slate-200 text-slate-600 hover:bg-slate-50">
+              <i class="fa-solid fa-receipt text-base"></i>
+              Depans Biznis
+            </button>
+          </div>
+        </div>
+
+        <input type="hidden" id="tx-type" value="cash_in">
+
+        <!-- Date & Client Name -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Dat Tranzaksyon</label>
+            <input type="date" id="tx-date" required class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Non Kliyan / Nòt</label>
+            <input type="text" id="tx-client" placeholder="egz. Jean Baptiste" required class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Dynamic Fields Container based on type -->
+        
+        <!-- 1. CASH IN (Zelle oswa Cash App) -->
+        <div id="fields-in" class="space-y-3 bg-brand-50/50 p-4 rounded-xl border border-brand-200">
+          <p class="text-xs text-brand-700 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-circle-info"></i> Lajan Antre an Etazini (Zelle / Cash App)
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Metòd Peman</label>
+              <select id="in-method" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-medium">
+                <option value="Zelle">Zelle</option>
+                <option value="Cash App">Cash App</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Montan Resevwa ($)</label>
+              <input type="number" step="0.01" id="in-amount" value="220" oninput="calculateCashInModal()" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold">
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-200 flex justify-between items-center text-xs">
+            <span>Moun nan ap jwenn: <strong id="modal-in-haiti" class="text-sky-600">$200.00</strong></span>
+            <span>Frè Moun Ayiti: <strong id="modal-in-fee" class="text-rose-600">$2.45</strong></span>
+            <span>Benefis Nèt: <strong id="modal-in-net" class="text-brand-600">$17.55</strong></span>
+          </div>
+        </div>
+
+        <!-- 2. CASH OUT AYITI (Pass-Through 0% Tax ak Remitly, Zelle, Cash App, PayPal) -->
+        <div id="fields-out" class="space-y-3 bg-sky-50 p-4 rounded-xl border border-sky-200 hidden">
+          <p class="text-xs text-sky-800 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-shield-halved"></i> Pass-Through Ayiti (0% Taks sou kòb la)
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Metòd Livrezon</label>
+              <select id="out-method" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-medium">
                 <option value="Remitly">Remitly</option>
                 <option value="Zelle Lòt Moun">Zelle Lòt Moun</option>
                 <option value="Cash App">Cash App</option>
@@ -130,298 +434,522 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Lajan Cash Moun Jwenn Ayiti ($)</label>
-              <input type="number" step="0.01" id="txHaitiOut" placeholder="200.00" oninput="calculatePreview()" class="w-full p-2.5 text-xs border bg-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+              <label class="block text-xs font-medium text-slate-600 mb-1">Lajan Cash Moun Jwenn Ayiti ($)</label>
+              <input type="number" step="0.01" id="out-haiti-amount" value="200" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold text-sky-700">
             </div>
           </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label id="lblAmount" class="block text-xs font-semibold text-gray-700 mb-1">Montan Total Kliyan Peye ($)</label>
-            <input type="number" step="0.01" id="txAmount" placeholder="220.00" oninput="calculatePreview()" required class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Frè Peye pou Transfè / Cash la ($)</label>
+            <input type="number" step="0.01" id="out-fee-amount" value="2.45" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold text-rose-600">
+          </div>
+        </div>
+
+        <!-- 3. CASH ORDER FIELDS -->
+        <div id="fields-cash" class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200 hidden">
+          <p class="text-xs text-slate-700 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-cart-shopping"></i> Kòmand Acha Entènèt Cash (Pass-Through)
+          </p>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Lajan Cash Kliyan an ba ou ($)</label>
+            <input type="number" step="0.01" id="cash-received" placeholder="100.00" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Frè Sèvis pou Transfè / Cash la ($)</label>
-            <input type="number" step="0.01" id="txFee" placeholder="2.45" oninput="calculatePreview()" class="w-full p-2.5 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Pri Acha Entènèt (Kat/PayPal) ($)</label>
+            <input type="number" step="0.01" id="cash-spent" placeholder="100.00" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold">
           </div>
         </div>
 
-        <!-- Kalkil An Tan Reyèl (Preview) -->
-        <div class="bg-gray-50 p-3 rounded-lg text-xs space-y-1 border border-gray-200">
-          <div class="flex justify-between">
-            <span class="text-gray-500">Pwofi Nèt Anrejistre:</span>
-            <span id="prevNet" class="font-bold text-gray-800">$0.00</span>
+        <!-- 4. EXPENSE FIELDS -->
+        <div id="fields-expense" class="space-y-3 bg-rose-50 p-4 rounded-xl border border-rose-200 hidden">
+          <p class="text-xs text-rose-800 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-minus-circle"></i> Depans Biznis Lejitim
+          </p>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Montan Depans ($)</label>
+            <input type="number" step="0.01" id="expense-amount" placeholder="45.00" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold text-rose-600">
           </div>
-          <div class="flex justify-between">
-            <span class="text-amber-700">Rezèv Taks IRS Estimasyon (30%):</span>
-            <span id="prevTax" class="font-bold text-amber-600">$0.00</span>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Kategori Depans</label>
+            <select id="expense-category" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs">
+              <option value="Entènèt / Telefòn">Entènèt / Telefòn Biznis</option>
+              <option value="Abònman Software">Abònman Software / Pwogram</option>
+              <option value="Frè Bankè">Frè Bankè / Transfè</option>
+              <option value="Transpò / Gaz">Deplasman / Gaz</option>
+              <option value="Lòt Depans">Lòt Depans Biznis</option>
+            </select>
           </div>
         </div>
 
-        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-md transition">
-          Anrejistre nan Liv la
-        </button>
+        <!-- RECEIPT IMAGE UPLOAD (Pou tout kalite tranzaksyon) -->
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Foto Resi oswa Prèv (Opsyonèl)</label>
+          <input type="file" accept="image/*" id="receipt-file" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200">
+        </div>
+
+        <!-- Form Submit & Cancel -->
+        <div class="pt-3 flex items-center justify-end space-x-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 transition">Anule</button>
+          <button type="submit" class="px-5 py-2 rounded-lg text-xs font-semibold bg-brand-600 text-white hover:bg-brand-500 transition shadow-sm">Anrejistre nan Liv la</button>
+        </div>
+
       </form>
     </div>
+  </div>
 
-    <!-- Lis Tranzaksyon yo an Tan Reyèl -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="p-4 border-b flex justify-between items-center">
-        <h3 class="font-bold text-gray-800 text-sm">Istwa Tranzaksyon</h3>
-        <span class="text-xs text-gray-400">Senkronize ak Supabase</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-gray-50 border-b text-[11px] font-bold text-gray-500 uppercase">
-              <th class="p-3">Dat</th>
-              <th class="p-3">Kliyan</th>
-              <th class="p-3">Tip / Metòd</th>
-              <th class="p-3">Montan</th>
-              <th class="p-3">Pwofi Nèt</th>
-              <th class="p-3">Taks IRS (30%)</th>
-              <th class="p-3 text-right">Aksyon</th>
-            </tr>
-          </thead>
-          <tbody id="txTableBody" class="divide-y text-xs">
-            <tr>
-              <td colspan="7" class="p-4 text-center text-gray-400">Poko gen tranzaksyon...</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
+    <p>© 2026 HDSTECH LLC / Ayiti. Optimisé pou Single-Member LLC &amp; Self-Employment IRS Rules.</p>
+  </footer>
 
-  </main>
-
+  <!-- Application Logic JS Script -->
   <script>
+    let transactions = [
+      {
+        id: '101',
+        type: 'cash_in',
+        method: 'Zelle',
+        date: '2026-11-08',
+        client: 'Jean Baptiste',
+        cashIn: 220.00,
+        cashOutHaiti: 200.00,
+        fee: 2.45,
+        netProfit: 17.55,
+        taxReserve: 5.27,
+        receiptImage: null
+      }
+    ];
+
+    let currentFilter = 'all';
+    let financeChart = null;
     let supabaseClient = null;
-    let transactions = [];
-    let currentType = 'cash_in';
 
-    document.getElementById('txDate').valueAsDate = new Date();
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
 
-    function initApp() {
-      const savedUrl = localStorage.getItem('hdstech_sb_url') || 'https://rwgrkmviefsannkmxazy.supabase.co';
-      const savedKey = localStorage.getItem('hdstech_sb_key');
+      // Init Supabase if config exists
+      initSupabaseFromStorage();
 
-      if (savedUrl && savedKey) {
-        document.getElementById('cfgUrl').value = savedUrl;
-        document.getElementById('cfgKey').value = savedKey;
-        connectSupabase(savedUrl, savedKey);
+      runQuickCalc();
+      updateDashboard();
+      initChart();
+    });
+
+    // Supabase Connection & Sync Setup
+    function initSupabaseFromStorage() {
+      const url = localStorage.getItem('hdstech_sp_url');
+      const key = localStorage.getItem('hdstech_sp_key');
+
+      if (url && key) {
+        try {
+          supabaseClient = supabase.createClient(url, key);
+          document.getElementById('sp-url').value = url;
+          document.getElementById('sp-key').value = key;
+          
+          document.getElementById('db-status-icon').className = 'fa-solid fa-cloud-check text-emerald-400';
+          document.getElementById('db-status-text').textContent = 'Supabase Konekte';
+          document.getElementById('sync-banner').classList.add('hidden');
+
+          fetchTransactionsFromSupabase();
+          listenToRealtimeChanges();
+        } catch(e) {
+          console.error("Erè Supabase Client", e);
+        }
       } else {
-        updateSyncStatus(false, 'Mank Kle Supabase');
+        loadLocalStorage();
       }
     }
 
-    function connectSupabase(url, key) {
-      try {
-        supabaseClient = supabase.createClient(url, key);
-        updateSyncStatus(true, 'Konekte sou Supabase');
-        loadTransactions();
-        subscribeRealtime();
-      } catch (err) {
-        console.error(err);
-        updateSyncStatus(false, 'Erè Koneksyon');
-      }
+    function openSupabaseModal() {
+      document.getElementById('supabase-modal').classList.remove('hidden');
     }
 
-    function updateSyncStatus(connected, text) {
-      const el = document.getElementById('syncStatus');
-      if (connected) {
-        el.className = 'text-xs bg-green-600 text-white px-3 py-1 rounded-full font-medium flex items-center gap-1';
-        el.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${text}`;
-      } else {
-        el.className = 'text-xs bg-red-600 text-white px-3 py-1 rounded-full font-medium flex items-center gap-1';
-        el.innerHTML = `<i class="fa-solid fa-exclamation-triangle"></i> ${text}`;
-      }
+    function closeSupabaseModal() {
+      document.getElementById('supabase-modal').classList.add('hidden');
     }
-
-    function openConfigModal() { document.getElementById('configModal').classList.remove('hidden'); }
-    function closeConfigModal() { document.getElementById('configModal').classList.add('hidden'); }
 
     function saveSupabaseConfig() {
-      const url = document.getElementById('cfgUrl').value.trim();
-      const key = document.getElementById('cfgKey').value.trim();
+      const url = document.getElementById('sp-url').value.trim();
+      const key = document.getElementById('sp-key').value.trim();
 
-      if (!url || !key) return alert('Tanpri ranpli tout espas yo!');
-
-      localStorage.setItem('hdstech_sb_url', url);
-      localStorage.setItem('hdstech_sb_key', key);
-      connectSupabase(url, key);
-      closeConfigModal();
-    }
-
-    function selectType(type) {
-      currentType = type;
-      ['cash_in', 'cash_out_haiti', 'command_cash', 'expense'].forEach(t => {
-        const btn = document.getElementById(`btn-${t}`);
-        if (t === type) {
-          btn.className = 'p-3 border rounded-xl text-left transition flex flex-col gap-1 border-blue-500 bg-blue-50 text-blue-700 font-bold shadow-sm';
-        } else {
-          btn.className = 'p-3 border rounded-xl text-left transition flex flex-col gap-1 border-gray-200 bg-white text-gray-700 hover:bg-gray-50';
-        }
-      });
-
-      const haitiGroup = document.getElementById('haitiOutGroup');
-      if (type === 'cash_out_haiti') {
-        haitiGroup.classList.remove('hidden');
-      } else {
-        haitiGroup.classList.add('hidden');
-      }
-      calculatePreview();
-    }
-
-    function calculatePreview() {
-      const amount = parseFloat(document.getElementById('txAmount').value) || 0;
-      const haitiOut = parseFloat(document.getElementById('txHaitiOut').value) || 0;
-      const fee = parseFloat(document.getElementById('txFee').value) || 0;
-
-      let netProfit = 0;
-      if (currentType === 'cash_out_haiti') {
-        netProfit = amount - haitiOut - fee;
-      } else if (currentType === 'expense') {
-        netProfit = -amount;
-      } else {
-        netProfit = amount - fee;
-      }
-
-      const taxReserve = netProfit > 0 ? netProfit * 0.30 : 0;
-
-      document.getElementById('prevNet').innerText = `$${netProfit.toFixed(2)}`;
-      document.getElementById('prevTax').innerText = `$${taxReserve.toFixed(2)}`;
-    }
-
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-
-      const client = document.getElementById('txClient').value;
-      const date = document.getElementById('txDate').value;
-      const amount = parseFloat(document.getElementById('txAmount').value) || 0;
-      const haitiOut = parseFloat(document.getElementById('txHaitiOut').value) || 0;
-      const fee = parseFloat(document.getElementById('txFee').value) || 0;
-      const method = currentType === 'cash_out_haiti' ? document.getElementById('txMethod').value : 'Standard';
-
-      let netProfit = 0;
-      if (currentType === 'cash_out_haiti') {
-        netProfit = amount - haitiOut - fee;
-      } else if (currentType === 'expense') {
-        netProfit = -amount;
-      } else {
-        netProfit = amount - fee;
-      }
-
-      const taxReserve = netProfit > 0 ? netProfit * 0.30 : 0;
-
-      const payload = {
-        type: currentType,
-        method,
-        client,
-        date,
-        cashin: currentType === 'cash_in' || currentType === 'command_cash' ? amount : 0,
-        cashouthaiti: currentType === 'cash_out_haiti' ? haitiOut : 0,
-        fee,
-        netprofit: netProfit,
-        taxreserve: taxReserve
-      };
-
-      if (supabaseClient) {
-        const { error } = await supabaseClient.from('hdstech_transactions').insert([payload]);
-        if (error) {
-          alert('Erè nan anrejistreman Supabase: ' + error.message);
-        } else {
-          document.getElementById('txForm').reset();
-          document.getElementById('txDate').valueAsDate = new Date();
-          selectType('cash_in');
-          calculatePreview();
-        }
-      } else {
-        alert('Supabase pa konekte! Klike sou konfigure anlè a.');
+      if (url && key) {
+        localStorage.setItem('hdstech_sp_url', url);
+        localStorage.setItem('hdstech_sp_key', key);
+        closeSupabaseModal();
+        initSupabaseFromStorage();
       }
     }
 
-    async function loadTransactions() {
+    function disconnectSupabase() {
+      localStorage.removeItem('hdstech_sp_url');
+      localStorage.removeItem('hdstech_sp_key');
+      supabaseClient = null;
+      document.getElementById('db-status-icon').className = 'fa-solid fa-cloud text-slate-400';
+      document.getElementById('db-status-text').textContent = 'Konfigure Supabase';
+      document.getElementById('sync-banner').classList.remove('hidden');
+      closeSupabaseModal();
+      loadLocalStorage();
+    }
+
+    async function fetchTransactionsFromSupabase() {
       if (!supabaseClient) return;
-      const { data, error } = await supabaseClient.from('hdstech_transactions').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabaseClient
+        .from('hdstech_transactions')
+        .select('*')
+        .order('date', { ascending: false });
+
       if (!error && data) {
         transactions = data;
-        renderData();
+        updateDashboard();
       }
     }
 
-    function subscribeRealtime() {
+    function listenToRealtimeChanges() {
       if (!supabaseClient) return;
       supabaseClient
         .channel('public:hdstech_transactions')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'hdstech_transactions' }, payload => {
-          loadTransactions();
+          fetchTransactionsFromSupabase();
         })
         .subscribe();
     }
 
-    function renderData() {
-      const tbody = document.getElementById('txTableBody');
-      tbody.innerHTML = '';
+    function loadLocalStorage() {
+      const saved = localStorage.getItem('hdstech_biz_v3');
+      if (saved) {
+        try { transactions = JSON.parse(saved); } catch(e){}
+      }
+      updateDashboard();
+    }
 
-      let totalIn = 0, totalOut = 0, totalNet = 0, totalTax = 0;
+    function saveDataLocally() {
+      localStorage.setItem('hdstech_biz_v3', JSON.stringify(transactions));
+    }
 
-      if (transactions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400">Poko gen tranzaksyon...</td></tr>';
+    // Quick Calculator sidebar (Baz $220 -> $200 Ayiti, $2.45 fee, $17.55 net)
+    function runQuickCalc() {
+      const totalIn = parseFloat(document.getElementById('calc-zelle-in').value) || 0;
+      const ratio = totalIn > 0 ? (totalIn / 220) : 0;
+      
+      const haitiOut = ratio * 200;
+      const fee = ratio * 2.45;
+      const netProfit = Math.max(0, ratio * 17.55);
+      const taxReserve = netProfit * 0.30;
+
+      document.getElementById('calc-haiti-out').textContent = '$' + haitiOut.toFixed(2);
+      document.getElementById('calc-fee').textContent = '$' + fee.toFixed(2);
+      document.getElementById('calc-net').textContent = '$' + netProfit.toFixed(2);
+      document.getElementById('calc-tax').textContent = '$' + taxReserve.toFixed(2);
+    }
+
+    function fillFormFromCalc() {
+      openModal();
+      setTxType('cash_in');
+      document.getElementById('in-amount').value = document.getElementById('calc-zelle-in').value;
+      calculateCashInModal();
+    }
+
+    // Modal Form Type Switching
+    function setTxType(type) {
+      document.getElementById('tx-type').value = type;
+      
+      // Reset buttons style
+      ['in', 'out', 'cash', 'expense'].forEach(t => {
+        const btn = document.getElementById(`type-btn-${t}`);
+        btn.className = "py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition border-slate-200 text-slate-600 hover:bg-slate-50";
+      });
+
+      const activeBtnMap = { 'cash_in': 'in', 'cash_out': 'out', 'cash_order': 'cash', 'expense': 'expense' };
+      const activeBtn = document.getElementById(`type-btn-${activeBtnMap[type]}`);
+      activeBtn.className = "py-2.5 px-2 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition bg-brand-50 border-brand-500 text-brand-700 shadow-sm";
+
+      // Hide all dynamic fields
+      document.getElementById('fields-in').classList.add('hidden');
+      document.getElementById('fields-out').classList.add('hidden');
+      document.getElementById('fields-cash').classList.add('hidden');
+      document.getElementById('fields-expense').classList.add('hidden');
+
+      // Show selected fields
+      if (type === 'cash_in') document.getElementById('fields-in').classList.remove('hidden');
+      if (type === 'cash_out') document.getElementById('fields-out').classList.remove('hidden');
+      if (type === 'cash_order') document.getElementById('fields-cash').classList.remove('hidden');
+      if (type === 'expense') document.getElementById('fields-expense').classList.remove('hidden');
+    }
+
+    function calculateCashInModal() {
+      const totalIn = parseFloat(document.getElementById('in-amount').value) || 0;
+      const ratio = totalIn > 0 ? (totalIn / 220) : 0;
+      
+      const haitiOut = ratio * 200;
+      const fee = ratio * 2.45;
+      const net = Math.max(0, ratio * 17.55);
+
+      document.getElementById('modal-in-haiti').textContent = '$' + haitiOut.toFixed(2);
+      document.getElementById('modal-in-fee').textContent = '$' + fee.toFixed(2);
+      document.getElementById('modal-in-net').textContent = '$' + net.toFixed(2);
+    }
+
+    function openModal() {
+      document.getElementById('tx-modal').classList.remove('hidden');
+      document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    function closeModal() {
+      document.getElementById('tx-modal').classList.add('hidden');
+    }
+
+    // Handle Form Submission
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const type = document.getElementById('tx-type').value;
+      const date = document.getElementById('tx-date').value;
+      const client = document.getElementById('tx-client').value;
+      
+      let cashIn = 0, cashOutHaiti = 0, fee = 0, netProfit = 0, taxReserve = 0, method = 'Standard';
+
+      if (type === 'cash_in') {
+        cashIn = parseFloat(document.getElementById('in-amount').value) || 0;
+        method = document.getElementById('in-method').value;
+        const ratio = cashIn / 220;
+        cashOutHaiti = ratio * 200;
+        fee = ratio * 2.45;
+        netProfit = Math.max(0, ratio * 17.55);
+        taxReserve = netProfit * 0.30;
+      } 
+      else if (type === 'cash_out') {
+        cashOutHaiti = parseFloat(document.getElementById('out-haiti-amount').value) || 0;
+        fee = parseFloat(document.getElementById('out-fee-amount').value) || 0;
+        method = document.getElementById('out-method').value;
+        cashIn = cashOutHaiti + fee;
+        netProfit = 0; // Pass-through
+        taxReserve = 0;
+      }
+      else if (type === 'cash_order') {
+        const received = parseFloat(document.getElementById('cash-received').value) || 0;
+        const spent = parseFloat(document.getElementById('cash-spent').value) || 0;
+        method = 'Acha Kat';
+        cashIn = received;
+        cashOutHaiti = spent;
+        netProfit = received - spent;
+        taxReserve = netProfit > 0 ? netProfit * 0.30 : 0;
+      }
+      else if (type === 'expense') {
+        const amt = parseFloat(document.getElementById('expense-amount').value) || 0;
+        const cat = document.getElementById('expense-category').value;
+        method = cat;
+        cashIn = 0;
+        cashOutHaiti = amt;
+        netProfit = -amt;
+        taxReserve = 0;
       }
 
-      transactions.forEach(tx => {
-        const net = parseFloat(tx.netprofit) || 0;
-        const tax = parseFloat(tx.taxreserve) || 0;
-        const inAmt = parseFloat(tx.cashin) || 0;
-        const outAmt = parseFloat(tx.cashouthaiti) || 0;
+      const fileInput = document.getElementById('receipt-file');
+      let receiptImage = null;
 
-        totalIn += inAmt;
-        totalOut += outAmt;
-        totalNet += net;
-        totalTax += tax;
+      if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = async function(uploadEvent) {
+          receiptImage = uploadEvent.target.result;
+          await finalizeAndSave({ type, method, date, client, cashIn, cashOutHaiti, fee, netProfit, taxReserve, receiptImage });
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+      } else {
+        await finalizeAndSave({ type, method, date, client, cashIn, cashOutHaiti, fee, netProfit, taxReserve, receiptImage: null });
+      }
+    }
 
-        let displayName = tx.type ? tx.type.replace(/_/g, ' ') : '';
-        if (tx.method && tx.method !== 'Standard') {
-          displayName += ` (${tx.method})`;
+    async function finalizeAndSave(newTx) {
+      if (supabaseClient) {
+        const { error } = await supabaseClient.from('hdstech_transactions').insert([newTx]);
+        if (error) {
+          alert('Erè pandan anrejistreman nan Supabase: ' + error.message);
+          return;
         }
+        fetchTransactionsFromSupabase();
+      } else {
+        newTx.id = Date.now().toString();
+        transactions.unshift(newTx);
+        saveDataLocally();
+        updateDashboard();
+      }
 
-        const row = document.createElement('tr');
-        row.className = 'border-b hover:bg-gray-50';
-        row.innerHTML = `
-          <td class="p-3 font-medium">${tx.date}</td>
-          <td class="p-3">${tx.client}</td>
-          <td class="p-3 font-semibold uppercase text-[10px]">${displayName}</td>
-          <td class="p-3">$${(inAmt || outAmt || amountHelper(tx)).toFixed(2)}</td>
-          <td class="p-3 font-bold ${net >= 0 ? 'text-green-600' : 'text-red-600'}">$${net.toFixed(2)}</td>
-          <td class="p-3 text-amber-600 font-semibold">$${tax.toFixed(2)}</td>
-          <td class="p-3 text-right">
-            <button onclick="deleteTx(${tx.id})" class="text-red-500 hover:text-red-700 text-xs">
-              <i class="fa-solid fa-trash"></i>
+      closeModal();
+      document.getElementById('tx-form').reset();
+      setTxType('cash_in');
+    }
+
+    async function deleteTransaction(id) {
+      if (!confirm('Èske ou sèten ou vle efase tranzaksyon sa a?')) return;
+
+      if (supabaseClient) {
+        const { error } = await supabaseClient.from('hdstech_transactions').delete().eq('id', id);
+        if (!error) {
+          fetchTransactionsFromSupabase();
+        } else {
+          alert('Erè pou efase: ' + error.message);
+        }
+      } else {
+        transactions = transactions.filter(t => t.id !== id);
+        saveDataLocally();
+        updateDashboard();
+      }
+    }
+
+    function filterTable(filter) {
+      currentFilter = filter;
+      ['all', 'in', 'out', 'cash', 'expense'].forEach(f => {
+        const btn = document.getElementById(`btn-filter-${f}`);
+        if (btn) btn.className = "px-3 py-1.5 rounded-lg hover:text-slate-900 transition";
+      });
+
+      const activeMap = { 'all': 'all', 'cash_in': 'in', 'cash_out': 'out', 'cash_order': 'cash', 'expense': 'expense' };
+      const activeBtn = document.getElementById(`btn-filter-${activeMap[filter]}`);
+      if (activeBtn) activeBtn.className = "px-3 py-1.5 rounded-lg bg-white shadow-sm text-slate-900 font-semibold transition";
+
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      let totalNetProfit = 0;
+      let totalTaxReserve = 0;
+      let totalPassThrough = 0;
+      let totalExpenses = 0;
+      let transferCount = 0;
+
+      transactions.forEach(t => {
+        const net = parseFloat(t.netProfit) || 0;
+        const tax = parseFloat(t.taxReserve) || 0;
+        const out = parseFloat(t.cashOutHaiti) || 0;
+
+        if (t.type === 'cash_in' || t.type === 'cash_order') {
+          if (net > 0) totalNetProfit += net;
+          if (tax > 0) totalTaxReserve += tax;
+          if (t.type === 'cash_in') transferCount++;
+        }
+        if (t.type === 'cash_out') {
+          totalPassThrough += out;
+          transferCount++;
+        }
+        if (t.type === 'expense') {
+          totalExpenses += out;
+        }
+      });
+
+      document.getElementById('stat-net-profit').textContent = '$' + totalNetProfit.toFixed(2);
+      document.getElementById('stat-tax-reserve').textContent = '$' + totalTaxReserve.toFixed(2);
+      document.getElementById('stat-passthrough').textContent = '$' + totalPassThrough.toFixed(2);
+      document.getElementById('stat-expenses').textContent = '$' + totalExpenses.toFixed(2);
+      document.getElementById('stat-transfers-count').textContent = transferCount + ' transfè';
+
+      renderTable();
+      updateChart(totalNetProfit, totalTaxReserve);
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('transaction-table-body');
+      const emptyState = document.getElementById('empty-state');
+      tbody.innerHTML = '';
+
+      let filtered = transactions;
+      if (currentFilter !== 'all') {
+        filtered = transactions.filter(t => t.type === currentFilter);
+      }
+
+      document.getElementById('visible-count').textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      filtered.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition";
+
+        let typeBadge = '';
+        if (t.type === 'cash_in') typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-50 text-brand-700">Cash In (${t.method})</span>`;
+        else if (t.type === 'cash_out') typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-50 text-sky-700">Cash Out Ayiti (${t.method})</span>`;
+        else if (t.type === 'cash_order') typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700">Kòmand Cash</span>`;
+        else typeBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700">Depans Biznis</span>`;
+
+        let receiptHtml = t.receiptImage 
+          ? `<a href="${t.receiptImage}" target="_blank" class="text-accent-600 hover:underline"><i class="fa-solid fa-image"></i> Gade</a>`
+          : `<span class="text-slate-300">-</span>`;
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-medium">
+            <div>${t.date}</div>
+            <div class="text-xs text-slate-500 font-normal">${t.client || ''}</div>
+          </td>
+          <td class="py-3 px-4">${typeBadge}</td>
+          <td class="py-3 px-4 font-semibold text-slate-700">$${(parseFloat(t.cashIn)||0).toFixed(2)}</td>
+          <td class="py-3 px-4 font-semibold text-sky-600">$${(parseFloat(t.cashOutHaiti)||0).toFixed(2)}</td>
+          <td class="py-3 px-4 font-semibold text-rose-600">$${(parseFloat(t.fee)||0).toFixed(2)}</td>
+          <td class="py-3 px-4 font-bold text-brand-600">$${(parseFloat(t.netProfit)||0).toFixed(2)}</td>
+          <td class="py-3 px-4 font-semibold text-amber-600">$${(parseFloat(t.taxReserve)||0).toFixed(2)}</td>
+          <td class="py-3 px-4 text-center">${receiptHtml}</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="deleteTransaction('${t.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
+              <i class="fa-solid fa-trash-can text-xs"></i>
             </button>
           </td>
         `;
-        tbody.appendChild(row);
+        tbody.appendChild(tr);
       });
-
-      document.getElementById('statCashIn').innerText = `$${totalIn.toFixed(2)}`;
-      document.getElementById('statCashOut').innerText = `$${totalOut.toFixed(2)}`;
-      document.getElementById('statNetProfit').innerText = `$${totalNet.toFixed(2)}`;
-      document.getElementById('statTaxReserve').innerText = `$${totalTax.toFixed(2)}`;
     }
 
-    function amountHelper(tx) {
-      return parseFloat(tx.netprofit) < 0 ? Math.abs(parseFloat(tx.netprofit)) : 0;
+    function initChart() {
+      const ctx = document.getElementById('financeChart').getContext('2d');
+      financeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Novanm 2026'],
+          datasets: [
+            {
+              label: 'Benefis Nèt ($)',
+              data: [17.55],
+              backgroundColor: '#16a34a',
+              borderRadius: 8
+            },
+            {
+              label: 'Rezèv Taks IRS ($)',
+              data: [5.27],
+              backgroundColor: '#f59e0b',
+              borderRadius: 8
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
     }
 
-    async function deleteTx(id) {
-      if (!confirm('Ou sèten ou vle efase tranzaksyon sa a?')) return;
-      if (supabaseClient) {
-        await supabaseClient.from('hdstech_transactions').delete().eq('id', id);
-      }
+    function updateChart(net, tax) {
+      if (!financeChart) return;
+      financeChart.data.datasets[0].data = [net];
+      financeChart.data.datasets[1].data = [tax];
+      financeChart.update();
     }
 
-    window.onload = initApp;
+    function exportToCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,Dat,Tip,Metod,Kliyan,CashIn,CashOutAyiti,Fre,NetProfit,TaxReserve\n";
+      transactions.forEach(t => {
+        csvContent += `"${t.date}","${t.type}","${t.method}","${t.client || ''}",${t.cashIn},${t.cashOutHaiti},${t.fee},${t.netProfit},${t.taxReserve}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "HDSTECH_Kontablite_Tranzaksyon.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   </script>
 </body>
 </html>
